@@ -6,6 +6,7 @@ from matplotlib.patches import Patch
 
 from lib import randomGen
 from algorithms import FCFS, PriorityScheduling, RR, SJF
+from algorithms.compare import Comparison
 
 ctk.set_appearance_mode("Dark")
 ctk.set_default_color_theme("green")
@@ -29,6 +30,7 @@ class CPUSimulator(ctk.CTk):
         self.preemptive_var = ctk.BooleanVar()
         self.quantum_var = ctk.StringVar(value="2")
         self.algorithms = self.__initialize_algorithms()
+        self.comparison = Comparison(self)
 
         self.setup_ui_layout()
         self.setup_matplotlib_chart()
@@ -53,7 +55,7 @@ class CPUSimulator(ctk.CTk):
         self.control_frame.pack(fill="x", padx=20, pady=(10, 5))
 
         ctk.CTkLabel(self.control_frame, text="Algorithm:").pack(side="left", padx=(10, 2))
-        self.algo_var = ctk.StringVar(value="Priority Scheduling")
+        self.algo_var = ctk.StringVar(value="Round Robin (RR)")
         self.algo_menu = ctk.CTkOptionMenu(
             self.control_frame, variable=self.algo_var,
             values=list(self.algorithms.keys()), width=180,
@@ -76,6 +78,12 @@ class CPUSimulator(ctk.CTk):
             command=self.on_start, state="disabled", text_color="Black",
         )
         self.btn_start.pack(side="right", padx=10, pady=10)
+
+        self.btn_compare = ctk.CTkButton(
+            self.control_frame, text="Compare All",
+            command=self.comparison.show_comparison, state="disabled", text_color="Black",
+        )
+        self.btn_compare.pack(side="right", padx=5, pady=10)
 
         self.topRightStatus = ctk.CTkLabel(self.control_frame, text="Status: Awaiting Data")
         self.topRightStatus.pack(side="right", padx=20)
@@ -166,6 +174,7 @@ class CPUSimulator(ctk.CTk):
         self._refresh_table()
         self.topRightStatus.configure(text="Status: Data Loaded – ready to Run")
         self.btn_start.configure(state="normal")
+        self.btn_compare.configure(state="normal")
         self.redraw_gantt_chart()
 
     def on_add_manual(self):
@@ -195,6 +204,7 @@ class CPUSimulator(ctk.CTk):
         self._refresh_table()
         self.topRightStatus.configure(text="Status: Process added")
         self.btn_start.configure(state="normal")
+        self.btn_compare.configure(state="normal")
         self.redraw_gantt_chart()
 
     def on_clear(self):
@@ -207,6 +217,7 @@ class CPUSimulator(ctk.CTk):
         self.topRightStatus.configure(text="Status: Cleared")
         self.btn_generate.configure(state="normal")
         self.btn_start.configure(state="disabled")
+        self.btn_compare.configure(state="disabled")
         self.redraw_gantt_chart()
 
     def _refresh_table(self):
