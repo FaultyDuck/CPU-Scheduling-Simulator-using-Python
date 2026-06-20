@@ -282,14 +282,14 @@ class CPUSimulator(ctk.CTk):
 
         total_tat = 0
         total_wt = 0
-        lines = ["PID\tAT\tBT\tCT\tTAT\tWT\n", "-" * 67 + "\n"]
+        lines = ["PID\tAT\tBT\tPri\tCT\tTAT\tWT\n", "-" * 73 + "\n"]
         for p in self.processes:
             ct = p["completion_time"]
             tat = ct - p["arrival_time"]
             wt = tat - p["burst_time"]
             total_tat += tat
             total_wt += wt
-            lines.append(f"{p['pid']}\t{p['arrival_time']}\t{p['burst_time']}\t{ct}\t{tat}\t{wt}\n")
+            lines.append(f"{p['pid']}\t{p['arrival_time']}\t{p['burst_time']}\t{p['priority']}\t{ct}\t{tat}\t{wt}\n")
 
         n = len(self.processes)
         avg_tat = total_tat / n if n else 0
@@ -298,6 +298,7 @@ class CPUSimulator(ctk.CTk):
         lines.append("\n" + "-" * 55 + "\n")
         lines.append(f"Average Turnaround Time: {avg_tat:.2f}\n")
         lines.append(f"Average Waiting Time:    {avg_wt:.2f}\n")
+        lines.append("AT = Arrival Time\nBT = Burst Time\nPRI = Priority\nCT = Completion Time\nTAT = Turnaround Time\nWT = Waiting Time\n")
 
         self.txt_log.insert("0.0", "".join(lines))
         self.topRightStatus.configure(text=f"Simulation Complete at {self.current_time}ms!")
