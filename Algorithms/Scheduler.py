@@ -3,10 +3,11 @@ from dataclasses import dataclass, field
 from typing import List, Optional
 
 class Scheduler(ABC):
-    def __init__(self, time_quantum: Optional[int] = None):
+    def __init__(self, time_quantum: Optional[int] = None, preemptive: bool = False):
         self.log: List[dict] = []
         self.t: int = 0
         self.quantum = time_quantum
+        self.preemptive = preemptive
 
     def schedule(self, processes: List[Process]) -> List[dict]:
         self.log, self.t = [], 0
@@ -20,6 +21,10 @@ class Scheduler(ABC):
                 self.log.append({"time": self.t, "pid": "Idle"})
                 self.t += 1
                 continue
+
+            # if preemptive or no current process, pick the next one to run
+            if self.preemptive or self.current is None or self.current.completed:
+                self.current = self.pick(ready, processes)
             
             # pick the next process to run based on the scheduling algorithm and move tiem forward
             p = self.pick(ready, processes)
