@@ -1,6 +1,6 @@
 def priorityScheduling(processes, current_time, execution_log):
-    queue = [p for p in processes]
-    queue.sort(key=lambda x: x["priority"]) #sort by priority
+    queue = [p for p in processes if p["arrival_time"] <= current_time and not p["completed"]]
+    queue.sort(key=lambda x: (x["priority"], x["arrival_time"])) #sort by priority and arrival time
 
     if not queue:
         execution_log.append({"time": current_time, "pid": "Idle"})
