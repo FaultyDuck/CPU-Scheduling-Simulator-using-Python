@@ -5,8 +5,7 @@ import os
 from matplotlib.patches import Patch
 
 from lib import randomGen
-import algorithms.FCFS as FCFS
-import algorithms.PriorityScheduling as PriorityScheduling
+from algorithms import FCFS, PriorityScheduling, RR, SJF
 
 ctk.set_appearance_mode("Dark")
 ctk.set_default_color_theme("green")
@@ -25,15 +24,24 @@ class CPUSimulator(ctk.CTk):
         self.is_simulating = False
         self.pid_colors = {}
 
-        self.algorithms = {
-            "FCFS": FCFS.FCFS,
-            "Priority Scheduling": PriorityScheduling.priorityScheduling,
-        }
-
         self.protocol("WM_DELETE_WINDOW", self.on_close)
+
+        self.preemptive_var = ctk.BooleanVar()
+        self.quantum_var = ctk.StringVar(value="2")
+        self.algorithms = self.__initialize_algorithms()
 
         self.setup_ui_layout()
         self.setup_matplotlib_chart()
+
+    def __initialize_algorithms(self):
+        self.rr = RR.RR(quantum=int(self.quantum_var.get()))
+        self.sjf = SJF.SJF()
+
+        return {
+            "Round Robin (RR)": self.rr.run_tick,
+            "Shortest Job First (SJF)": self.sjf.run_tick,
+        }
+
 
     def setup_ui_layout(self):
         # Row 1
@@ -45,8 +53,14 @@ class CPUSimulator(ctk.CTk):
         self.algo_menu = ctk.CTkOptionMenu(
             self.control_frame, variable=self.algo_var,
             values=list(self.algorithms.keys()), width=180,
+            command=lambda _: self._update_preemptive_state(),
         )
         self.algo_menu.pack(side="left", padx=5)
+
+        self.preemptive_var = ctk.BooleanVar()
+        self.preemptive_checkbox = ctk.CTkCheckBox(self.control_frame, text="Preemptive", variable=self.preemptive_var)
+        self.preemptive_checkbox.pack(side="left", padx=5)
+        self._update_preemptive_state()
 
         ctk.CTkLabel(self.control_frame, text="Time Quantum:").pack(side="left", padx=(15, 2))
         self.quantum_var = ctk.StringVar(value="2")
@@ -115,6 +129,12 @@ class CPUSimulator(ctk.CTk):
 
         self.canvas = FigureCanvasTkAgg(self.fig, master=self.display_frame)
         self.canvas.get_tk_widget().pack(side="right", fill="both", expand=True, padx=10, pady=10)
+
+    def _update_preemptive_state(self):
+        needs_preemptive = self.algo_var.get() in ["Shortest Job First (SJF)", "Priority Scheduling"]
+        self.preemptive_checkbox.configure(state="normal" if needs_preemptive else "disabled")
+        if not needs_preemptive:
+            self.preemptive_var.set(False)
 
     def on_close(self):
         self.is_simulating = False
@@ -194,6 +214,7 @@ class CPUSimulator(ctk.CTk):
     # Simulation
     def on_start(self):
         if not self.is_simulating and self.processes:
+            self.sjf.preemptive = self.preemptive_var.get()
             for p in self.processes:
                 p["remaining_time"] = 0
                 p["completed"] = False
@@ -222,7 +243,7 @@ class CPUSimulator(ctk.CTk):
 
         if finished:
             self.is_simulating = False
-            self.btn_generate.configure(state="normal")
+            self.btn_start.configure(state="normal")
             self._show_results()
         else:
             self.after(100, self.simulation_loop_tick)
