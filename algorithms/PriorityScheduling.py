@@ -1,6 +1,6 @@
-def FCFS(processes, current_time, execution_log):
+def priorityScheduling(processes, current_time, execution_log):
     queue = [p for p in processes if p["arrival_time"] <= current_time and not p["completed"]]
-    queue.sort(key=lambda x: x["arrival_time"]) #sort by arrival time
+    queue.sort(key=lambda x: (x["priority"], x["arrival_time"]))
 
     if not queue:
         execution_log.append({"time": current_time, "pid": "Idle"})
@@ -16,6 +16,6 @@ def FCFS(processes, current_time, execution_log):
 
     if processing["remaining_time"] <= 0:
         processing["completed"] = True
+        processing["completion_time"] = current_time + 1
 
-    all_done = all(p["completed"] for p in processes)
-    return all_done
+    return all(p["completed"] for p in processes)

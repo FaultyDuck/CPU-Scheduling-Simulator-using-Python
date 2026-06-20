@@ -1,11 +1,12 @@
 import customtkinter as ctk
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-import randomGen
-import FCFS
-import PriorityScheduling
 import os
 from matplotlib.patches import Patch
+
+from lib import randomGen
+import algorithms.FCFS as FCFS
+import algorithms.PriorityScheduling as PriorityScheduling
 
 ctk.set_appearance_mode("Dark")
 ctk.set_default_color_theme("green")
