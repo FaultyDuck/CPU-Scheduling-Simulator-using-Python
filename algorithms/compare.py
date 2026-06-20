@@ -83,6 +83,7 @@ class Comparison:
                     "pid": p["pid"],
                     "arrival_time": p["arrival_time"],
                     "burst_time": p["burst_time"],
+                    "priority": p.get("priority", 0),
                     "completion_time": ct,
                     "tat": tat,
                     "wt": wt,
@@ -140,7 +141,7 @@ class Comparison:
 
         # Summary of input processes
         proc_text = "Processes: " + ", ".join(
-            f"{p['pid']}(AT={p['arrival_time']}, BT={p['burst_time']})"
+            f"{p['pid']}(AT={p['arrival_time']}, BT={p['burst_time']}, PRI={p.get('priority', 0)})"
             for p in self.parent.processes
         )
         ctk.CTkLabel(inner, text=proc_text, text_color="#aaaaaa",
@@ -156,14 +157,14 @@ class Comparison:
             table = ctk.CTkFrame(inner, fg_color="#333333")
             table.pack(fill="x", padx=20, pady=5)
 
-            headers = ["PID", "AT", "BT", "CT", "TAT", "WT"]
+            headers = ["PID", "AT", "BT", "PRI", "CT", "TAT", "WT"]
             for i, h in enumerate(headers):
                 ctk.CTkLabel(table, text=h, font=ctk.CTkFont(weight="bold"),
                               text_color="white", width=70).grid(row=0, column=i, padx=3, pady=3)
 
             for r, proc in enumerate(data["processes"], 1):
                 vals = [proc["pid"], proc["arrival_time"], proc["burst_time"],
-                        proc["completion_time"], proc["tat"], proc["wt"]]
+                        proc["priority"], proc["completion_time"], proc["tat"], proc["wt"]]
                 for c, v in enumerate(vals):
                     ctk.CTkLabel(table, text=str(v), text_color="white",
                                   width=70).grid(row=r, column=c, padx=3, pady=2)
