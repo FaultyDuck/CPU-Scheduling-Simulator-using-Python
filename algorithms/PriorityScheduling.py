@@ -1,21 +1,9 @@
-def priorityScheduling(processes, current_time, execution_log):
-    queue = [p for p in processes if p["arrival_time"] <= current_time and not p["completed"]]
-    queue.sort(key=lambda x: (x["priority"], x["arrival_time"]))
+from lib.Scheduler import Scheduler
+from lib.Process import Process
 
-    if not queue:
-        execution_log.append({"time": current_time, "pid": "Idle"})
-        return False
+class PriorityScheduling(Scheduler):
+    def __init__(self, preemptive: bool = False):
+        super().__init__(preemptive=preemptive)
 
-    processing = queue[0]
-
-    if processing["remaining_time"] == 0:
-        processing["remaining_time"] = processing["burst_time"]
-
-    execution_log.append({"time": current_time, "pid": processing["pid"]})
-    processing["remaining_time"] -= 1
-
-    if processing["remaining_time"] <= 0:
-        processing["completed"] = True
-        processing["completion_time"] = current_time + 1
-
-    return all(p["completed"] for p in processes)
+    def pick(self, ready, processes):
+        return min(ready, key=lambda p: (p.priority, p.arrival_time))

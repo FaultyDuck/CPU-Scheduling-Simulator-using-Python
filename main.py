@@ -16,7 +16,7 @@ class CPUSimulator(ctk.CTk):
         super().__init__()
 
         self.title("CPU Scheduling Simulator")
-        self.geometry("1100x700")
+        self.geometry("1300x700")
 
         self.processes = []
         self.execution_log = []
@@ -34,12 +34,16 @@ class CPUSimulator(ctk.CTk):
         self.setup_matplotlib_chart()
 
     def __initialize_algorithms(self):
+        self.fcfs = FCFS.FCFS()
         self.rr = RR.RR(quantum=int(self.quantum_var.get()))
         self.sjf = SJF.SJF()
+        self.priority = PriorityScheduling.PriorityScheduling()
 
         return {
+            "First Come First Serve (FCFS)": self.fcfs.run_tick,
             "Round Robin (RR)": self.rr.run_tick,
             "Shortest Job First (SJF)": self.sjf.run_tick,
+            "Priority Scheduling": self.priority.run_tick,
         }
 
 
@@ -116,7 +120,7 @@ class CPUSimulator(ctk.CTk):
         self.display_frame = ctk.CTkFrame(self)
         self.display_frame.pack(fill="both", expand=True, padx=20, pady=5)
 
-        self.txt_log = ctk.CTkTextbox(self.display_frame, width=280)
+        self.txt_log = ctk.CTkTextbox(self.display_frame, width=400)
         self.txt_log.pack(side="left", fill="y", padx=10, pady=10)
         self.txt_log.insert("0.0", "Process Table:\nAdd or generate processes to begin.")
 
@@ -201,6 +205,7 @@ class CPUSimulator(ctk.CTk):
         self.txt_log.delete("0.0", "end")
         self.txt_log.insert("0.0", "Process Table:\nAdd or generate processes to begin.")
         self.topRightStatus.configure(text="Status: Cleared")
+        self.btn_generate.configure(state="normal")
         self.btn_start.configure(state="disabled")
         self.redraw_gantt_chart()
 
@@ -215,6 +220,7 @@ class CPUSimulator(ctk.CTk):
     def on_start(self):
         if not self.is_simulating and self.processes:
             self.sjf.preemptive = self.preemptive_var.get()
+            self.priority.preemptive = self.preemptive_var.get()
             for p in self.processes:
                 p["remaining_time"] = 0
                 p["completed"] = False
@@ -265,7 +271,7 @@ class CPUSimulator(ctk.CTk):
 
         total_tat = 0
         total_wt = 0
-        lines = ["PID\tAT\tBT\tCT\tTAT\tWT\n", "-" * 55 + "\n"]
+        lines = ["PID\tAT\tBT\tCT\tTAT\tWT\n", "-" * 67 + "\n"]
         for p in self.processes:
             ct = p["completion_time"]
             tat = ct - p["arrival_time"]
