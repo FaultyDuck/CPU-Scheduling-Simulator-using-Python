@@ -6,7 +6,7 @@ This project combines:
 1. operating system concepts
 2. programming implementation
 3. algorithm analysis
-4. and responsible use of g
+4. and responsible use of generative AI
 
 Project Objectives
 - Understand the behaviour of CPU scheduling algorithms
@@ -31,3 +31,10 @@ You may NOT use:
 - copied projects from GitHub
 - fully AI-generated submissions without modification and understanding
 
+To run:
+- Install python uv package manager
+
+```
+uv sync
+uv run main.py
+```
